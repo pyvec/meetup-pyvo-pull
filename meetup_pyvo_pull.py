@@ -26,9 +26,10 @@ def process_start(timestamp):
     # Use only first 10 digits from timestamp, localize it using timestamp
     # and convert it to string
     timestamp = int(str(timestamp)[:10])
-    dt = datetime.fromtimestamp(timestamp)
-    timezone = pytz.timezone('Europe/Prague')
-    localized = timezone.localize(dt)
+    dt = datetime.utcfromtimestamp(timestamp)
+    dt = dt.replace(tzinfo=pytz.utc)
+    local_timezone = pytz.timezone('Europe/Prague')
+    localized = dt.astimezone(local_timezone)
     return localized.strftime('%Y-%m-%d %H:%M:%S')
 
 
