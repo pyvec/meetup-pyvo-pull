@@ -6,6 +6,7 @@ import json
 import unicodedata
 import re
 import textwrap
+import pytz
 from urllib.request import urlopen
 from jinja2 import Template
 from datetime import datetime
@@ -22,10 +23,13 @@ def get_meetup_data(group, meetup_id):
 
 
 def process_start(timestamp):
-    # Use only first 10 digits from timestamp and convert it to string
+    # Use only first 10 digits from timestamp, localize it using timestamp
+    # and convert it to string
     timestamp = int(str(timestamp)[:10])
-    start = datetime.fromtimestamp(timestamp)
-    return start.strftime('%Y-%m-%d %H:%M:%S')
+    dt = datetime.fromtimestamp(timestamp)
+    timezone = pytz.timezone('Europe/Prague')
+    localized = timezone.localize(dt)
+    return localized.strftime('%Y-%m-%d %H:%M:%S')
 
 
 def process_description(description):
