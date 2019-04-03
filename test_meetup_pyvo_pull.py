@@ -26,7 +26,10 @@ testdata = [
     ("blah", ""),
     ("blah\nblah", "    blah"),
     ("blah\nblah\nblah", "    blah\n    blah"),
-    ('blah</br><p><a href="#">blah</a></p>blah\nend', "    blahblah\n\n    blah"),
+    (
+        'blah</br><p><a href="#">blah</a></p>blah\nend',
+        "    blahblah\n\n    blah",
+    ),
 ]
 
 
@@ -62,7 +65,9 @@ testdata = [
 ]
 
 
-@pytest.mark.parametrize("group, meetup_id, name, venue_name, group_name", testdata)
+@pytest.mark.parametrize(
+    "group, meetup_id, name, venue_name, group_name", testdata
+)
 def test_get_meetup_data(group, meetup_id, name, venue_name, group_name):
     data = get_meetup_data(group, meetup_id)
     assert data["name"] == name
@@ -71,8 +76,12 @@ def test_get_meetup_data(group, meetup_id, name, venue_name, group_name):
     assert data["link"].endswith("{}/events/{}/".format(group, meetup_id))
 
 
-@pytest.mark.parametrize("group, meetup_id, name, venue_name, group_name", testdata)
-def test_load_and_fill_template(group, meetup_id, name, venue_name, group_name):
+@pytest.mark.parametrize(
+    "group, meetup_id, name, venue_name, group_name", testdata
+)
+def test_load_and_fill_template(
+    group, meetup_id, name, venue_name, group_name
+):
     meetup_data = get_meetup_data(group, meetup_id)
     data = {
         "city": "Ostrava",

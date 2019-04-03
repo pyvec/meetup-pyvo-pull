@@ -78,7 +78,12 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "-c", "--city", dest="city", type=str, required=True, help="Name of the city"
+        "-c",
+        "--city",
+        dest="city",
+        type=str,
+        required=True,
+        help="Name of the city",
     )
     parser.add_argument(
         "-v",
@@ -151,7 +156,9 @@ if __name__ == "__main__":
     event_name = remove_diacritic(data["topic"]).replace(" ", "-")
     event_file_name = "{}-{}.yaml".format(event_date, event_name)
 
-    dest_file_name = os.path.join(DIR, "series", args.serie, "events", event_file_name)
+    dest_file_name = os.path.join(
+        DIR, "series", args.serie, "events", event_file_name
+    )
 
     with open(dest_file_name, "w") as fh:
         print("Writing to", dest_file_name)
