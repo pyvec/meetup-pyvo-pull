@@ -1,43 +1,28 @@
-#!/usr/bin/python3
+#!/usr/bin/env python
 
 import os
 import sys
-import json
 import unicodedata
-import re
 import textwrap
-import pytz
 from urllib.request import urlopen
-from jinja2 import Template
 from datetime import datetime
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+
+from jinja2 import Template
+from teemup import parse
 
 DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def get_meetup_data(group, meetup_id):
     # Get available data about meetup
-    url = "https://api.meetup.com/{}/events/{}".format(group, meetup_id)
-    json_data = urlopen(url).read().decode()
-    return json.loads(json_data)
-
-
-def process_start(timestamp):
-    # Use only first 10 digits from timestamp, localize it using timestamp
-    # and convert it to string
-    timestamp = int(str(timestamp)[:10])
-    dt = datetime.utcfromtimestamp(timestamp)
-    dt = dt.replace(tzinfo=pytz.utc)
-    local_timezone = pytz.timezone("Europe/Prague")
-    localized = dt.astimezone(local_timezone)
-    return localized.strftime("%Y-%m-%d %H:%M:%S")
+    url = "https://www.meetup.com/{}/events/{}".format(group, meetup_id)
+    return parse(urlopen(url).read())[0]
 
 
 def process_description(description):
     # Process description from HTML to intended YAML
     output = []
-    description = re.sub("</p>", "\n\n", description)
-    description = re.sub("<[^<]+?>", "", description)
     parts = description.splitlines()
     indent = " " * 4
     for part in parts:
@@ -46,8 +31,6 @@ def process_description(description):
             part, width=75, subsequent_indent=indent, initial_indent=indent
         )
         output.append(part)
-
-    del output[-1]
 
     return "\n".join(output)
 
@@ -143,12 +126,12 @@ if __name__ == "__main__":
     meetup_data = get_meetup_data(args.group, args.meetup_id)
     data = {
         "city": args.city,
-        "start": process_start(meetup_data["time"]),
-        "name": meetup_data["group"]["name"],
-        "topic": meetup_data["name"],
+        "start": meetup_data["starts_at"].strftime("%Y-%m-%d %H:%M:%S"),
+        "name": meetup_data["group_name"],
+        "topic": meetup_data["title"],
         "description": process_description(meetup_data["description"]),
         "venue": args.venue,
-        "url": meetup_data["link"],
+        "url": meetup_data["url"],
     }
 
     event_file_content = load_and_fill_template(**data)
